@@ -1,0 +1,2 @@
+# ltbot
+Lightweight Twitch
