@@ -1,5 +1,5 @@
 import socket
-import config
+import src.config as config
 
 class Ltbot:
     def __init__(self):
@@ -10,3 +10,16 @@ class Ltbot:
         
     def connect(self):
         self.sock.connect((self.conf["host"], self.conf["port"]))
+        print("[socket connected]")
+        self.send(self.conf["token"], "PASS")
+        self.send(self.conf["nickname"], "NICK")
+        print("[received]", self.sock.recv(1024).decode("UTF-8"))
+        self.send('#' + self.conf["nickname"], "JOIN")
+        print("[received]", self.sock.recv(1024).decode("UTF-8"))
+        
+    def send(self, msg, cmd = "PRIVMSG"):
+        print("[send]", cmd, msg)
+        if cmd == "PRIVMSG":
+            self.sock.send(bytes("PRIVMSG %s :%s\r\n" % ('#' + self.conf["nickname"], msg), "UTF-8"))
+        else:
+            self.sock.send(bytes("%s %s\r\n" % (cmd, msg), "UTF-8"))
