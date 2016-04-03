@@ -1,5 +1,6 @@
 import socket
 import src.config as config
+from src.message import *
 
 class Ltbot:
     def __init__(self):
@@ -22,10 +23,11 @@ class Ltbot:
         except socket.timeout as e:
             print("[error]", "Socket timeout")
             exit(-1)
-            
+
     def send(self, msg, cmd = "PRIVMSG"):
-        print("[send]", cmd, msg)
-        if cmd == "PRIVMSG":
-            self.sock.send(bytes("PRIVMSG %s :%s\r\n" % ('#' + self.conf["nickname"], msg), "UTF-8"))
-        else:
-            self.sock.send(bytes("%s %s\r\n" % (cmd, msg), "UTF-8"))
+        """send a simple message"""
+        SimpleMessage(msg, cmd).run(self.sock, '#' + self.conf["nickname"])
+
+    def run(self, msg, sec, cmd = "PRIVMSG"):
+        """send a message with an interval"""
+        IntervalMessage(msg, cmd).run(self.sock, '#' + self.conf["nickname"], sec)
