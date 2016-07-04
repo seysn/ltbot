@@ -6,17 +6,20 @@ class Ltbot:
     def __init__(self):
         self.conf = config.get_config()
         self.sock = socket.socket()
-        self.sock.settimeout(10)
-        
+        self.sock.settimeout(600)
+
     def connect(self):
         try:
             self.sock.connect((self.conf["host"], self.conf["port"]))
             print("[socket connected]")
             self.send(self.conf["token"], "PASS")
             self.send(self.conf["nickname"], "NICK")
-            print("[received]", self.sock.recv(1024).decode("UTF-8"))
+            for txt in self.sock.recv(1024).decode("UTF-8").split("\r\n")[:-1]:
+                print(">", txt) 
             self.send('#' + self.conf["nickname"], "JOIN")
-            print("[received]", self.sock.recv(1024).decode("UTF-8"))
+            for txt in self.sock.recv(1024).decode("UTF-8").split("\r\n")[:-1]:
+                print(">", txt)
+            print()
         except socket.error as e:
             print("[error]", "Unable to connect")
             exit(-2)
@@ -31,3 +34,17 @@ class Ltbot:
     def run(self, msg, sec, cmd = "PRIVMSG"):
         """send a message with an interval"""
         IntervalMessage(msg, cmd).run(self.sock, '#' + self.conf["nickname"], sec)
+
+    def loop(self):
+        """main loop to analyse each message"""
+        while True:
+            msg = self.sock.recv(1024).decode("UTF-8")
+            user = msg.split('!')[0][1:]
+            
+            for txt in msg.split("\r\n")[:-1]:
+                print(">", txt) 
+            if msg.find("PING") == 0:
+                print("<", msg.replace("PING", "PONG"), end = "")
+                self.sock.send(bytes(msg.replace("PING", "PONG"), "UTF-8"))
+            elif msg.find("!hello") != -1:
+                self.send("Hello " + user)

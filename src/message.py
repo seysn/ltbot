@@ -11,10 +11,10 @@ class SimpleMessage(Thread):
         Thread.__init__(self)
         self.cmd = cmd
         self.msg = msg
-        
+
     def run(self, socket, chan = None, sec = 0):
         time.sleep(sec)
-        print("[send]", self.cmd, self.msg)
+        print("<", self.cmd, self.msg)
         if self.cmd == "PRIVMSG":
             if chan is None:
                 raise Exception("There must be a channel when sending PRIVMSG")
