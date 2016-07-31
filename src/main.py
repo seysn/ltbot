@@ -10,13 +10,13 @@ class Ltbot:
 
     def connect(self):
         try:
-            self.sock.connect((self.conf["host"], self.conf["port"]))
+            self.sock.connect((self.conf["server"]["host"], int(self.conf["server"]["port"])))
             print("[socket connected]")
-            self.send(self.conf["token"], "PASS")
-            self.send(self.conf["nickname"], "NICK")
+            self.send(self.conf["account"]["token"], "PASS")
+            self.send(self.conf["account"]["nickname"], "NICK")
             for txt in self.sock.recv(1024).decode("UTF-8").split("\r\n")[:-1]:
                 print(">", txt) 
-            self.send('#' + self.conf["nickname"], "JOIN")
+            self.send('#' + self.conf["account"]["channel"], "JOIN")
             for txt in self.sock.recv(1024).decode("UTF-8").split("\r\n")[:-1]:
                 print(">", txt)
             print()
@@ -29,11 +29,11 @@ class Ltbot:
 
     def send(self, msg, cmd = "PRIVMSG"):
         """send a simple message"""
-        SimpleMessage(msg, cmd).run(self.sock, '#' + self.conf["nickname"])
+        SimpleMessage(msg, cmd).run(self.sock, '#' + self.conf["account"]["channel"])
 
     def run(self, msg, sec, cmd = "PRIVMSG"):
         """send a message with an interval"""
-        IntervalMessage(msg, cmd).run(self.sock, '#' + self.conf["nickname"], sec)
+        IntervalMessage(msg, cmd).run(self.sock, '#' + self.conf["account"]["channel"], sec)
 
     def loop(self):
         """main loop to analyse each message"""
